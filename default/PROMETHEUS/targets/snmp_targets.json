@@ -1,0 +1,8 @@
+[
+  {
+    "targets": ["192.168.1.1"],
+    "labels": {
+      "instance": "monitor-lab"
+    }
+  }
+]

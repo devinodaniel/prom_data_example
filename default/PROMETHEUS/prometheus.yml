@@ -1,0 +1,41 @@
+global:
+  scrape_interval:  1m # By default, scrape targets at this interval.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'default'
+
+scrape_configs:
+
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  
+  # Monitor Prometheus itself
+  - job_name: 'prometheus'
+    scrape_interval: 5m
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+  
+  # Monitor servers or nodes
+  - job_name: 'node'
+    file_sd_configs:
+      - files:
+        - /etc/prometheus/targets/node_*.json
+
+  # Monitor SNMP devices
+  - job_name: 'snmp'
+    file_sd_configs:
+      - files:
+        - /etc/prometheus/targets/snmp_*.json
+    metrics_path: /snmp
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: '127.0.0.1:9116'
+
+# Alert rules (for Alertmanager)
+rule_files:
+  - /etc/prometheus/targets/*.rules
